@@ -1,0 +1,9 @@
+<resources>
+    <!-- Android 12+ system splash: brand colour behind the launcher icon, then our animated splash takes over. -->
+    <style name="Theme.Budgetin" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:windowBackground">@color/splash_background</item>
+        <item name="android:windowSplashScreenBackground">@color/splash_background</item>
+    </style>
+</resources>

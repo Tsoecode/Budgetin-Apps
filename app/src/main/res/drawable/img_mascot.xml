@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Friendly mascot used on Welcome / onboarding / insight card. Flat shapes, so it is cheap to draw. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="200dp" android:height="200dp" android:viewportWidth="200" android:viewportHeight="200">
+    <path android:fillColor="#FFFF8A33" android:pathData="M54,14 A26,26 0 1 1 54,66 A26,26 0 1 1 54,14 Z"/>
+    <path android:fillColor="#FFFF8A33" android:pathData="M146,14 A26,26 0 1 1 146,66 A26,26 0 1 1 146,14 Z"/>
+    <path android:fillColor="#FFFF9A4D" android:pathData="M100,24 A76,76 0 1 1 100,176 A76,76 0 1 1 100,24 Z"/>
+    <path android:fillColor="#FFFFE9D8" android:pathData="M100,48 A56,56 0 1 1 100,160 A56,56 0 1 1 100,48 Z"/>
+    <path android:fillColor="#FF2A1A10" android:pathData="M80,88 A8,8 0 1 1 80,104 A8,8 0 1 1 80,88 Z"/>
+    <path android:fillColor="#FF2A1A10" android:pathData="M120,88 A8,8 0 1 1 120,104 A8,8 0 1 1 120,88 Z"/>
+    <path android:fillColor="#FFFFFFFF" android:pathData="M82,90.4 A2.6,2.6 0 1 1 82,95.6 A2.6,2.6 0 1 1 82,90.4 Z"/>
+    <path android:fillColor="#FFFFFFFF" android:pathData="M122,90.4 A2.6,2.6 0 1 1 122,95.6 A2.6,2.6 0 1 1 122,90.4 Z"/>
+    <path android:fillColor="#55FF6B6B" android:pathData="M66,108 A8,8 0 1 1 66,124 A8,8 0 1 1 66,108 Z"/>
+    <path android:fillColor="#55FF6B6B" android:pathData="M134,108 A8,8 0 1 1 134,124 A8,8 0 1 1 134,108 Z"/>
+    <path android:strokeColor="#FF2A1A10" android:strokeWidth="3.2" android:strokeLineCap="round"
+          android:pathData="M115,118.8 A16,11 0 0 1 85,118.8"/>
+    <path android:fillColor="#FFFFC107" android:pathData="M164,138 A26,26 0 1 1 164,190 A26,26 0 1 1 164,138 Z"/>
+    <path android:fillColor="#FFFFE082" android:pathData="M164,146 A18,18 0 1 1 164,182 A18,18 0 1 1 164,146 Z"/>
+</vector>

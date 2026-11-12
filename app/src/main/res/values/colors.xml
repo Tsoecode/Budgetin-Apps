@@ -1,0 +1,6 @@
+<resources>
+    <color name="brand_orange">#FFF2761F</color>
+    <color name="brand_orange_deep">#FFC44F0C</color>
+    <!-- Window background while the app starts; the animated Compose splash continues from this colour. -->
+    <color name="splash_background">#FFC44F0C</color>
+</resources>

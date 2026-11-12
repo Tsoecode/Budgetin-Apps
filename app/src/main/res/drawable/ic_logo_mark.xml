@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Budgetin logo mark: a bold "b" whose bowl is a coin ring. White; drawn on a gradient tile in the app. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp" android:height="48dp" android:viewportWidth="48" android:viewportHeight="48">
+    <path android:fillColor="#FFFFFFFF"
+          android:pathData="M16,8 A4,4 0 0 1 20,12 L20,36 A4,4 0 0 1 12,36 L12,12 A4,4 0 0 1 16,8 Z"/>
+    <path android:fillColor="#FFFFFFFF" android:fillType="evenOdd"
+          android:pathData="M28,17 A11,11 0 1 1 28,39 A11,11 0 1 1 28,17 Z M28,23 A5,5 0 1 0 28,33 A5,5 0 1 0 28,23 Z"/>
+</vector>
