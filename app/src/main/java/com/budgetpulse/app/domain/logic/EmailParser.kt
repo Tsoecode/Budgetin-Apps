@@ -44,7 +44,11 @@ object EmailParser {
     // These contain "credit"/"debit" but do not indicate direction.
     private val NEUTRALISE = listOf("credit card", "kartu kredit", "credit limit", "limit kredit")
 
-    private val AMOUNT_LABELS = listOf("amount", "nominal", "jumlah", "sebesar", "senilai", "total", "value")
+    private val AMOUNT_LABELS = listOf(
+        "total bayar", "total pembayaran", "total payment", "total transaksi", "total amount",
+        "grand total", "amount paid", "amount payable", "jumlah bayar", "jumlah pembayaran", "nominal pembayaran",
+        "amount", "nominal", "jumlah", "sebesar", "senilai", "total", "value"
+    )
     private val AMOUNT_BLOCK_CONTEXT = listOf("saldo", "balance", "limit", "available", "tersedia")
 
     private val CURRENCY_PREFIX =
@@ -58,7 +62,7 @@ object EmailParser {
 
     private val CATEGORY_RULES: List<Pair<Category, List<String>>> = listOf(
         Category.FOOD to listOf("grabfood", "gofood", "shopeefood", "kfc", "mcd", "mcdonald", "starbucks", "restaurant",
-            "resto", "cafe", "coffee", "kopi", "food", "pizza", "burger", "bakery", "warung", "makan"),
+            "resto", "cafe", "coffee", "kopi", "food", "pizza", "burger", "bakery", "warung", "makan", "ayam", "nasi", "rice"),
         Category.TRANSPORT to listOf("grab", "gojek", "uber", "bluebird", "transjakarta", "mrt", "krl", "kereta",
             "parking", "parkir", "pertamina", "shell", "bensin", "toll", "e-toll", "petronas", "touch n go"),
         Category.SHOPPING to listOf("indomaret", "alfamart", "tokopedia", "shopee", "lazada", "amazon", "mall",
@@ -143,9 +147,11 @@ object EmailParser {
         }.sortedBy { it.start }
         if (usable.isEmpty()) return null
 
-        val labelled = usable.firstOrNull { h ->
-            val ctx = lower.substring(maxOf(0, h.start - 30), h.start)
-            AMOUNT_LABELS.any { ctx.contains(it) }
+        val labelled = AMOUNT_LABELS.firstNotNullOfOrNull { label ->
+            usable.firstOrNull { h ->
+                val ctx = lower.substring(maxOf(0, h.start - 50), h.start)
+                ctx.contains(label)
+            }
         }
         val chosen = labelled ?: usable.first()
         return chosen.value to chosen.currency
