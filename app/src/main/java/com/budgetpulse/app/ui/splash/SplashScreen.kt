@@ -36,12 +36,12 @@ import com.budgetpulse.app.ui.common.AppIcon
 import kotlin.math.PI
 import kotlin.math.sin
 
-// Pastel peach, apricot, and coral tones inspired by the reference image.
-private val LIGHT_ORANGE = Color(0xFFFFB45C)
-private val PALE_ORANGE = Color(0xFFFFD2B8)
-private val BRAND_ORANGE = Color(0xFFFF765D)
-private val AMBER_GLOW = Color(0xFFFFB94A)
-private val WARM_WHITE = Color(0xFFFFFEFD)
+// Saturated orange/coral fields stand out against a clean, bright white base.
+private val LIGHT_ORANGE = Color(0xFFFF8A00)
+private val PALE_ORANGE = Color(0xFFFFB15C)
+private val BRAND_ORANGE = Color(0xFFFF4F32)
+private val AMBER_GLOW = Color(0xFFFF6A00)
+private val WARM_WHITE = Color(0xFFFFFFFF)
 
 /**
  * Start-up screen: an animated, flowing gradient in the app palette with the logo in the centre.
@@ -64,13 +64,15 @@ fun SplashScreen(modifier: Modifier = Modifier) {
             val height = size.height
             val radius = size.maxDimension * 0.68f
 
-            // Bright base plus broad, feathered orange fields drifting like liquid color.
+            // Vivid color centers with a shorter fade keep the orange fields distinct,
+            // while the untouched areas stay crisp white.
             drawRect(WARM_WHITE)
             drawRect(
                 Brush.radialGradient(
                     colorStops = arrayOf(
-                        0f to AMBER_GLOW.copy(alpha = 0.86f),
-                        0.46f to PALE_ORANGE.copy(alpha = 0.60f),
+                        0f to AMBER_GLOW.copy(alpha = 0.98f),
+                        0.32f to LIGHT_ORANGE.copy(alpha = 0.88f),
+                        0.72f to PALE_ORANGE.copy(alpha = 0.40f),
                         1f to Color.Transparent
                     ),
                     center = Offset(
@@ -83,8 +85,9 @@ fun SplashScreen(modifier: Modifier = Modifier) {
             drawRect(
                 Brush.radialGradient(
                     colorStops = arrayOf(
-                        0f to BRAND_ORANGE.copy(alpha = 0.82f),
-                        0.52f to PALE_ORANGE.copy(alpha = 0.60f),
+                        0f to BRAND_ORANGE.copy(alpha = 0.96f),
+                        0.34f to BRAND_ORANGE.copy(alpha = 0.78f),
+                        0.72f to PALE_ORANGE.copy(alpha = 0.38f),
                         1f to Color.Transparent
                     ),
                     center = Offset(
@@ -97,8 +100,8 @@ fun SplashScreen(modifier: Modifier = Modifier) {
             drawRect(
                 Brush.radialGradient(
                     colorStops = arrayOf(
-                        0f to LIGHT_ORANGE.copy(alpha = 0.56f),
-                        0.5f to PALE_ORANGE.copy(alpha = 0.32f),
+                        0f to LIGHT_ORANGE.copy(alpha = 0.72f),
+                        0.38f to PALE_ORANGE.copy(alpha = 0.46f),
                         1f to Color.Transparent
                     ),
                     center = Offset(
@@ -122,7 +125,7 @@ fun SplashScreen(modifier: Modifier = Modifier) {
         ) {
             Box(
                 Modifier.size(132.dp).clip(CircleShape).background(
-                    Brush.linearGradient(listOf(Color(0xFFEC6D17), Color(0xFFC44F0C))),
+                    Brush.linearGradient(listOf(Color(0xFFFF6A00), Color(0xFFCC3500))),
                     CircleShape
                 ),
                 contentAlignment = Alignment.Center
@@ -130,7 +133,7 @@ fun SplashScreen(modifier: Modifier = Modifier) {
                 AppIcon(R.drawable.ic_logo_mark, contentDescription = "BudgetPulse logo", tint = Color.White, modifier = Modifier.size(84.dp))
             }
             Spacer(Modifier.height(20.dp))
-            Text("BudgetPulse", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, color = Color(0xFFC44F0C))
+            Text("BudgetPulse", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, color = Color(0xFFCC3500))
         }
     }
 }
