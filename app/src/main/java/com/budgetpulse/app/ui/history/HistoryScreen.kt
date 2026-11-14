@@ -52,7 +52,7 @@ fun HistoryScreen(
                 onClick = {
                     val send = Intent(Intent.ACTION_SEND).apply {
                         type = "text/plain"
-                        putExtra(Intent.EXTRA_SUBJECT, "Budgetin transactions")
+                        putExtra(Intent.EXTRA_SUBJECT, "BudgetPulse transactions")
                         putExtra(Intent.EXTRA_TEXT, state.csv)
                     }
                     context.startActivity(Intent.createChooser(send, "Export as CSV"))

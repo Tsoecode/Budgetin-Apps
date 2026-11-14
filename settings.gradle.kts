@@ -12,5 +12,5 @@ dependencyResolutionManagement {
         mavenCentral()
     }
 }
-rootProject.name = "Budgetin"
+rootProject.name = "BudgetPulse"
 include(":app")

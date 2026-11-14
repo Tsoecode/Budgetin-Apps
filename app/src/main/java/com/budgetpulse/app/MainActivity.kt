@@ -39,9 +39,9 @@ class MainActivity : ComponentActivity() {
             val prefs by container.userPreferences.prefs.collectAsStateWithLifecycle<UserPrefs?>(initialValue = null)
             val current = prefs
             val tier = remember { Performance.tierFor(this) }
-            // Show the animated splash at least ~1.5 s, and for as long as the saved settings are still loading.
+            // Keep the splash visible for about 5 seconds, and longer if saved settings are still loading.
             var minTimeElapsed by remember { mutableStateOf(false) }
-            LaunchedEffect(Unit) { delay(1500); minTimeElapsed = true }
+            LaunchedEffect(Unit) { delay(4650); minTimeElapsed = true }
             CompositionLocalProvider(LocalAppContainer provides container, LocalPerfTier provides tier) {
                 BudgetPulseTheme(themeMode = current?.themeMode ?: ThemeMode.SYSTEM) {
                     Crossfade(targetState = current == null || !minTimeElapsed, animationSpec = tween(350), label = "splash") { showSplash ->

@@ -151,7 +151,7 @@ fun HomeContent(
     }
 
     ScreenScaffold(
-        title = "Budgetin",
+        title = "BudgetPulse",
         leading = {
             CircleIconButton(R.drawable.ic_settings, "Settings", onOpenSettings, Modifier.testTag("btn_settings"))
         },

@@ -68,7 +68,7 @@ class NotificationsUiTest {
     fun splashShowsTheLogo() {
         rule.setContent { BudgetPulseTheme(ThemeMode.DARK) { SplashScreen() } }
         rule.onNodeWithTag("splash").assertIsDisplayed()
-        rule.onNodeWithContentDescription("Budgetin logo").assertIsDisplayed()
-        rule.onNodeWithText("Budgetin").assertIsDisplayed()
+        rule.onNodeWithContentDescription("BudgetPulse logo").assertIsDisplayed()
+        rule.onNodeWithText("BudgetPulse").assertIsDisplayed()
     }
 }

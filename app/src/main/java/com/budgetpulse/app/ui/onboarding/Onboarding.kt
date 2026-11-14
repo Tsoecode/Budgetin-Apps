@@ -102,7 +102,7 @@ fun currencyLabel(code: String): String =
 fun Mascot(modifier: Modifier = Modifier) {
     Image(
         painter = painterResource(R.drawable.img_mascot),
-        contentDescription = "Budgetin mascot: a friendly orange character holding a coin",
+        contentDescription = "BudgetPulse mascot: a friendly orange character holding a coin",
         modifier = modifier
     )
 }

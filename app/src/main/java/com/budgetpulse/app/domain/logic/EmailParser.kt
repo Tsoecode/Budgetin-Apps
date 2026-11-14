@@ -62,7 +62,7 @@ object EmailParser {
 
     private val CATEGORY_RULES: List<Pair<Category, List<String>>> = listOf(
         Category.FOOD to listOf("grabfood", "gofood", "shopeefood", "kfc", "mcd", "mcdonald", "starbucks", "restaurant",
-            "resto", "cafe", "coffee", "kopi", "food", "pizza", "burger", "bakery", "warung", "makan", "ayam", "nasi", "rice"),
+            "resto", "cafe", "coffee", "kopi", "food", "pizza", "burger", "bakery", "warung", "makan", "ayam", "nasi", "rice", "minuman", "juice", "ice"),
         Category.TRANSPORT to listOf("grab", "gojek", "uber", "bluebird", "transjakarta", "mrt", "krl", "kereta",
             "parking", "parkir", "pertamina", "shell", "bensin", "toll", "e-toll", "petronas", "touch n go"),
         Category.SHOPPING to listOf("indomaret", "alfamart", "tokopedia", "shopee", "lazada", "amazon", "mall",

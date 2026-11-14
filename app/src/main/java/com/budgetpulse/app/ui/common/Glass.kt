@@ -90,7 +90,7 @@ fun Modifier.glassSource(source: GlassSource): Modifier =
         }
 
 /**
- * Page background. Light: the Budgetin peach header gradient. Dark: graphite with two soft colour glows
+ * Page background. Light: the BudgetPulse peach header gradient. Dark: graphite with two soft colour glows
  * (orange top-right, indigo bottom-left) instead of just darkening the light design. Draw it INSIDE [glassSource].
  */
 @Composable
@@ -268,7 +268,7 @@ fun GlassSideNav(
     }
 }
 
-/** The Budgetin logo: a white "b" (its bowl is a coin ring) on a rounded orange gradient tile. */
+/** The BudgetPulse logo: a white "b" (its bowl is a coin ring) on a rounded orange gradient tile. */
 @Composable
 fun BudgetinLogo(modifier: Modifier = Modifier, size: Dp = 34.dp) {
     Box(
@@ -287,7 +287,7 @@ fun BrandMark(showName: Boolean, modifier: Modifier = Modifier) {
         BudgetinLogo()
         if (showName) {
             Spacer(Modifier.width(10.dp))
-            Text("Budgetin", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, maxLines = 1)
+            Text("BudgetPulse", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, maxLines = 1)
         }
     }
 }

@@ -2,7 +2,6 @@ package com.budgetpulse.app.ui.splash
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
@@ -25,31 +24,34 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.budgetpulse.app.R
 import com.budgetpulse.app.ui.common.AppIcon
+import kotlin.math.PI
+import kotlin.math.sin
 
-// The three app colours the gradient drifts between. White on all of them is >= 3:1 (large logo / text).
-private val DEEP = Color(0xFF9A3A07)
-private val BRAND = Color(0xFFC44F0C)
-private val BRIGHT = Color(0xFFEC6D17)
+// Pastel peach, apricot, and coral tones inspired by the reference image.
+private val LIGHT_ORANGE = Color(0xFFFFB45C)
+private val PALE_ORANGE = Color(0xFFFFD2B8)
+private val BRAND_ORANGE = Color(0xFFFF765D)
+private val AMBER_GLOW = Color(0xFFFFB94A)
+private val WARM_WHITE = Color(0xFFFFFEFD)
 
 /**
- * Start-up screen: a slowly drifting gradient in the app palette with the logo in the centre.
+ * Start-up screen: an animated, flowing gradient in the app palette with the logo in the centre.
  * The animated value is only read while drawing, so the screen does not recompose every frame.
  */
 @Composable
 fun SplashScreen(modifier: Modifier = Modifier) {
     val drift = rememberInfiniteTransition(label = "splashDrift").animateFloat(
         initialValue = 0f, targetValue = 1f,
-        animationSpec = infiniteRepeatable(tween(2600, easing = LinearEasing), RepeatMode.Reverse),
+        animationSpec = infiniteRepeatable(tween(3000, easing = LinearEasing)),
         label = "drift"
     )
     val enter = remember { Animatable(0f) }
@@ -57,13 +59,55 @@ fun SplashScreen(modifier: Modifier = Modifier) {
 
     Box(
         modifier.fillMaxSize().testTag("splash").drawBehind {
-            val t = drift.value
-            val brush = Brush.linearGradient(
-                colors = listOf(lerp(DEEP, BRAND, t), lerp(BRAND, BRIGHT, t), lerp(BRIGHT, DEEP, t)),
-                start = Offset(size.width * t, 0f),
-                end = Offset(size.width * (1f - t), size.height)
+            val phase = drift.value * (2f * PI.toFloat())
+            val width = size.width
+            val height = size.height
+            val radius = size.maxDimension * 0.68f
+
+            // Bright base plus broad, feathered orange fields drifting like liquid color.
+            drawRect(WARM_WHITE)
+            drawRect(
+                Brush.radialGradient(
+                    colorStops = arrayOf(
+                        0f to AMBER_GLOW.copy(alpha = 0.86f),
+                        0.46f to PALE_ORANGE.copy(alpha = 0.60f),
+                        1f to Color.Transparent
+                    ),
+                    center = Offset(
+                        width * (0.04f + 0.08f * sin(phase)),
+                        height * (0.48f + 0.08f * sin(phase + 1.1f)),
+                    ),
+                    radius = radius
+                )
             )
-            drawRect(brush)
+            drawRect(
+                Brush.radialGradient(
+                    colorStops = arrayOf(
+                        0f to BRAND_ORANGE.copy(alpha = 0.82f),
+                        0.52f to PALE_ORANGE.copy(alpha = 0.60f),
+                        1f to Color.Transparent
+                    ),
+                    center = Offset(
+                        width * (0.94f - 0.08f * sin(phase + 0.8f)),
+                        height * (0.48f + (0.08f * sin(phase + 2.0f)))
+                    ),
+                    radius = radius * 0.64f
+                )
+            )
+            drawRect(
+                Brush.radialGradient(
+                    colorStops = arrayOf(
+                        0f to LIGHT_ORANGE.copy(alpha = 0.56f),
+                        0.5f to PALE_ORANGE.copy(alpha = 0.32f),
+                        1f to Color.Transparent
+                    ),
+                    center = Offset(
+                        width * (0.5f + 0.16f * sin(phase + 2.4f)),
+                        height * (0.5f + 0.10f * sin(phase + 3.1f))
+                    ),
+                    radius = radius * 0.68f
+                )
+            )
         },
         contentAlignment = Alignment.Center
     ) {
@@ -76,11 +120,17 @@ fun SplashScreen(modifier: Modifier = Modifier) {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            Box(Modifier.size(132.dp).clip(CircleShape).background(Color.White.copy(alpha = 0.16f)), contentAlignment = Alignment.Center) {
-                AppIcon(R.drawable.ic_logo_mark, contentDescription = "Budgetin logo", tint = Color.White, modifier = Modifier.size(84.dp))
+            Box(
+                Modifier.size(132.dp).clip(CircleShape).background(
+                    Brush.linearGradient(listOf(Color(0xFFEC6D17), Color(0xFFC44F0C))),
+                    CircleShape
+                ),
+                contentAlignment = Alignment.Center
+            ) {
+                AppIcon(R.drawable.ic_logo_mark, contentDescription = "BudgetPulse logo", tint = Color.White, modifier = Modifier.size(84.dp))
             }
             Spacer(Modifier.height(20.dp))
-            Text("Budgetin", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, color = Color.White)
+            Text("BudgetPulse", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, color = Color(0xFFC44F0C))
         }
     }
 }

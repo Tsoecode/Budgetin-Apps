@@ -134,7 +134,7 @@ fun SettingsScreen(widthClass: WindowWidthSizeClass) {
                 // ---- about / credits
                 AppCard {
                     Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                        Text("About Budgetin 1.0", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+                        Text("About BudgetPulse 1.0", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
                         Text("Exchange rates: ExchangeRate-API (rates by Exchange Rate API), fallback ECB via Frankfurter.", style = MaterialTheme.typography.bodySmall)
                         Text("News: Google News. Country flags: flagcdn.com. Savings guide: Bank Jago.", style = MaterialTheme.typography.bodySmall)
                         TextButton(onClick = { openUrl(context, "https://www.exchangerate-api.com") }, contentPadding = PaddingValues(0.dp)) {
@@ -257,7 +257,7 @@ private fun EmailImportCard(state: SettingsUiState, vm: SettingsViewModel) {
                     }
                 }
                 Text(
-                    "How it works: Budgetin signs in read-only over IMAP, looks at the last days of mail from your bank senders, and recognises debit / credit wording and the amount. " +
+                    "How it works: BudgetPulse signs in read-only over IMAP, looks at the last days of mail from your bank senders, and recognises debit / credit wording and the amount. " +
                         "Each e-mail is imported once. OTP, promo and statement mails are ignored. Your app password is encrypted with the Android Keystore. " +
                         "Gmail: turn on 2-Step Verification, then create an App password under Google Account > Security.",
                     style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant

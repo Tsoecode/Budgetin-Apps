@@ -38,7 +38,7 @@ class BudgetPulseApp : Application(), ImageLoaderFactory {
     override fun onCreate() {
         super.onCreate()
         container = DefaultAppContainer(this)
-        AppLog.i(AppLog.STATE, "Budgetin started")
+        AppLog.i(AppLog.STATE, "BudgetPulse started")
         // Background e-mail checks: restart the chain when the user changes the switch / interval (skip the
         // initial value), and make sure one is queued at start.
         container.applicationScope.launch {

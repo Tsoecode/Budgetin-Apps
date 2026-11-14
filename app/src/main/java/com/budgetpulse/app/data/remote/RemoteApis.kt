@@ -65,7 +65,7 @@ class NewsRemoteSource(private val client: OkHttpClient) {
     suspend fun fetch(url: String): String = withContext(Dispatchers.IO) {
         val request = Request.Builder()
             .url(url)
-            .header("User-Agent", "Mozilla/5.0 (Android) Budgetin/1.0")
+            .header("User-Agent", "Mozilla/5.0 (Android) BudgetPulse/1.0")
             .build()
         client.newCall(request).execute().use { response ->
             if (!response.isSuccessful) throw IOException("HTTP ${response.code}")
