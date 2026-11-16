@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.material3.*
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.*
@@ -35,9 +36,9 @@ import java.util.Date
 @Composable
 fun SettingsScreen(widthClass: WindowWidthSizeClass) {
     val container = LocalAppContainer.current
-    val vm = appViewModel { SettingsViewModel(container) }
-    val state by vm.state.collectAsStateWithLifecycle()
     val context = LocalContext.current
+    val vm = appViewModel { SettingsViewModel(container, context) }
+    val state by vm.state.collectAsStateWithLifecycle()
     val snackbar = remember { SnackbarHostState() }
     var confirmClear by remember { mutableStateOf(false) }
     var confirmLogout by remember { mutableStateOf(false) }
@@ -114,7 +115,7 @@ fun SettingsScreen(widthClass: WindowWidthSizeClass) {
                 }
 
                 // ---- e-mail import
-                EmailImportCard(state, vm)
+                EmailImportCard(state, vm, context)
 
                 // ---- data
                 AppCard {
@@ -179,7 +180,7 @@ fun SettingsScreen(widthClass: WindowWidthSizeClass) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun EmailImportCard(state: SettingsUiState, vm: SettingsViewModel) {
+private fun EmailImportCard(state: SettingsUiState, vm: SettingsViewModel, context: android.content.Context) {
     val p = state.prefs
     var enabled by remember(state.loaded) { mutableStateOf(p.emailImportEnabled) }
     var user by remember(state.loaded) { mutableStateOf(p.imapUser.ifBlank { p.userEmail }) }
@@ -192,7 +193,16 @@ private fun EmailImportCard(state: SettingsUiState, vm: SettingsViewModel) {
     var interval by remember(state.loaded) { mutableStateOf(SyncInterval.fromMinutes(p.emailIntervalMinutes)) }
     var intervalMenu by remember { mutableStateOf(false) }
     var initialRange by remember(state.loaded) { mutableStateOf(InitialSyncRange.fromDays(p.initialScanDays)) }
-    var showInitialSyncDialog by remember { mutableStateOf(false) }
+    var showInitialSyncDialog by rememberSaveable { mutableStateOf(false) }
+    var showNoMonthTransactionsDialog by rememberSaveable { mutableStateOf(false) }
+
+    LaunchedEffect(p.emailImportEnabled, p.initialScanDays) {
+        initialRange = InitialSyncRange.fromDays(p.initialScanDays)
+    }
+    LaunchedEffect(Unit) { vm.observeManualScan(context) }
+    LaunchedEffect(state.sync.showNoMonthTransactionsDialog) {
+        showNoMonthTransactionsDialog = state.sync.showNoMonthTransactionsDialog
+    }
     val target = state.accounts.firstOrNull { it.id == accountId } ?: state.accounts.firstOrNull()
     val outlook = MailProviders.isOutlookFamily(user)
 
@@ -295,6 +305,34 @@ private fun EmailImportCard(state: SettingsUiState, vm: SettingsViewModel) {
             }
             if (p.hasImapPassword) TextButton(onClick = vm::forgetPassword) { Text("Remove saved password") }
         }
+    }
+
+    if (showNoMonthTransactionsDialog) {
+        AlertDialog(
+            onDismissRequest = { vm.dismissNoMonthTransactionsDialog() },
+            title = { Text("No transactions found") },
+            text = { Text("Maybe You dont have a transaction during this month") },
+            confirmButton = {
+                TextButton(onClick = { vm.dismissNoMonthTransactionsDialog() }) { Text("OK") }
+            }
+        )
+    }
+
+    if (showNoMonthTransactionsDialog) {
+        AlertDialog(
+            onDismissRequest = {
+                showNoMonthTransactionsDialog = false
+                vm.dismissNoMonthTransactionsDialog()
+            },
+            title = { Text("No transactions found") },
+            text = { Text("Maybe You dont have a transaction during this month") },
+            confirmButton = {
+                TextButton(onClick = {
+                    showNoMonthTransactionsDialog = false
+                    vm.dismissNoMonthTransactionsDialog()
+                }) { Text("OK") }
+            }
+        )
     }
 
     if (showInitialSyncDialog) {

@@ -131,7 +131,7 @@ fun WelcomeScreen(onGetStarted: () -> Unit) {
         Spacer(Modifier.height(32.dp))
         Mascot(Modifier.size(240.dp))
         Spacer(Modifier.height(24.dp))
-        Text("Hi! I'm Budi!", style = MaterialTheme.typography.headlineLarge, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center)
+        Text("Hi! I'm a Manager!", style = MaterialTheme.typography.headlineLarge, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center)
         Text("Your financial assistant", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary)
         Spacer(Modifier.height(12.dp))
         Text(

@@ -20,7 +20,7 @@ fun BudgetEntity.toDomain() = BudgetLimit(category, monthlyLimit)
 fun GoalEntity.toDomain() = SavingsGoal(id, name, target, saved)
 fun SavingsGoal.toEntity() = GoalEntity(id, name, target, saved)
 
-fun NewsEntity.toDomain() = NewsItem(title, source, link, publishedAt, imageUrl)
+fun NewsEntity.toDomain() = NewsItem(title, source, link, publishedAt, imageUrl, sourceUrl)
 
 fun NotificationEntity.toDomain() = AppNotification(
     id = id,

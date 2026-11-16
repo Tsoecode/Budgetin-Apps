@@ -53,7 +53,9 @@ data class NewsItem(
     val source: String,
     val link: String,
     val publishedAt: Long,
-    val imageUrl: String
+    val imageUrl: String,
+    /** Publisher homepage from the feed's <source url>, e.g. https://www.nerdwallet.com. */
+    val sourceUrl: String = ""
 )
 
 data class CurrencyRates(

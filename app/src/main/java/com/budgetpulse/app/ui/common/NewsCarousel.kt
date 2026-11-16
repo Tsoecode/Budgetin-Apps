@@ -31,7 +31,9 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
 import coil.compose.SubcomposeAsyncImage
+import com.budgetpulse.app.domain.logic.NewsFeedParser
 import com.budgetpulse.app.domain.model.NewsItem
 import com.budgetpulse.app.ui.theme.BrandOrange
 import kotlinx.coroutines.delay
@@ -82,13 +84,19 @@ fun NewsCarousel(
 
 @Composable
 private fun NewsCard(item: NewsItem, onClick: () -> Unit) {
+    val imageUrl = if (item.imageUrl.contains("picsum.photos")) {
+        NewsFeedParser.bannerFor(item.title)
+    } else {
+        item.imageUrl
+    }
+    val logoUrl = NewsFeedParser.logoFor(item.sourceUrl)
     AppCard(
         modifier = Modifier.fillMaxWidth().semantics { contentDescription = "News: ${item.title}, from ${item.source}. Double tap to read." },
         onClick = onClick
     ) {
         Box(Modifier.fillMaxWidth().height(176.dp)) {
             SubcomposeAsyncImage(
-                model = item.imageUrl,
+                model = imageUrl,
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier.fillMaxSize(),
@@ -100,6 +108,9 @@ private fun NewsCard(item: NewsItem, onClick: () -> Unit) {
                     Brush.verticalGradient(0.35f to Color.Transparent, 1f to Color(0xE6000000))
                 )
             )
+            if (logoUrl != null) {
+                SourceLogoBadge(logoUrl = logoUrl, source = item.source, modifier = Modifier.align(Alignment.TopEnd).padding(12.dp))
+            }
             Column(Modifier.align(Alignment.BottomStart).padding(16.dp)) {
                 Text(item.source, style = MaterialTheme.typography.labelMedium, color = Color(0xFFFFD9BF), maxLines = 1)
                 Text(
@@ -108,6 +119,22 @@ private fun NewsCard(item: NewsItem, onClick: () -> Unit) {
                 )
             }
         }
+    }
+}
+
+/** The publisher's real logo in a translucent white chip, so it stays legible over any photo. */
+@Composable
+private fun SourceLogoBadge(logoUrl: String, source: String, modifier: Modifier = Modifier) {
+    Box(
+        modifier.size(32.dp).clip(CircleShape).background(Color.White.copy(alpha = 0.92f)),
+        contentAlignment = Alignment.Center
+    ) {
+        AsyncImage(
+            model = logoUrl,
+            contentDescription = "$source logo",
+            contentScale = ContentScale.Fit,
+            modifier = Modifier.size(20.dp).clip(CircleShape)
+        )
     }
 }
 

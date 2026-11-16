@@ -1,6 +1,6 @@
 package com.budgetpulse.app.domain.logic
 
-/** Lookback window for the very first email scan (when lastEmailSyncAt == 0). */
+/** Supported lookback periods for email scans. */
 enum class InitialSyncRange(val days: Int, val label: String) {
     ONE_WEEK(7, "1 week"),
     ONE_MONTH(30, "1 month");

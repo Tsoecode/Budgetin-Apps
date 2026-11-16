@@ -20,6 +20,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable data class TransactionForm(val transactionId: Long = -1L, val startAsIncome: Boolean = false)
 @Serializable data class TransactionDetail(val transactionId: Long)
+@Serializable data class AccountDetails(val accountId: Long)
 
 data class TopLevelRoute<T : Any>(
     val label: String,

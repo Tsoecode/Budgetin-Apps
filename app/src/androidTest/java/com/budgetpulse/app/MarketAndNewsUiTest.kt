@@ -3,12 +3,10 @@ package com.budgetpulse.app
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertTextContains
 import androidx.compose.ui.test.assertTextEquals
-import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import androidx.compose.ui.test.performScrollToNode
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeLeft
 import com.budgetpulse.app.data.prefs.ThemeMode
@@ -55,10 +53,9 @@ class MarketAndNewsUiTest {
         rule.onNodeWithText("Updated: Thu, 05 Nov 2026 00:00:01 +0000").assertIsDisplayed()
         // 100 USD x 16000 = 1,600,000 IDR (separator style depends on the device locale, so only digits are checked)
         rule.onNodeWithTag("converter_result").assertTextContains("IDR", substring = true)
-        rule.onNodeWithTag("market_list").performScrollToNode(hasTestTag("rate_MYR"))
         // each row reads "1 <stronger currency> = x <weaker currency>": short numbers, never 0.000062
-        rule.onNodeWithTag("rate_MYR").assertTextEquals("1 USD = 4.50 MYR")
-        rule.onNodeWithTag("rate_EUR").assertTextEquals("1 EUR = 1.11 USD")
+        rule.onNodeWithTag("rate_MYR", useUnmergedTree = true).assertTextEquals("1 USD = 4.50 MYR")
+        rule.onNodeWithTag("rate_EUR", useUnmergedTree = true).assertTextEquals("1 EUR = 1.11 USD")
     }
 
     @Test

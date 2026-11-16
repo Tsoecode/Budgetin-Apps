@@ -21,7 +21,7 @@ import javax.mail.search.ReceivedDateTerm
 /** Reads the INBOX over IMAPS in READ-ONLY mode. Nothing is ever deleted, moved or marked as read. */
 class ImapEmailFetcher : EmailFetcher {
 
-    override suspend fun fetchRecent(config: ImapConfig, sinceMillis: Long, max: Int): List<RawEmail> =
+    override suspend fun fetchRecent(config: ImapConfig, sinceMillis: Long): List<RawEmail> =
         withContext(Dispatchers.IO) {
             val props = Properties().apply {
                 setProperty("mail.store.protocol", "imaps")
@@ -44,7 +44,9 @@ class ImapEmailFetcher : EmailFetcher {
                 try {
                     val found = inbox.search(ReceivedDateTerm(ComparisonTerm.GE, Date(sinceMillis)))
                     AppLog.d(AppLog.EMAIL, "IMAP search returned ${found.size} messages")
-                    found.takeLast(max).mapNotNull { toRaw(it) }
+                    // Ignore malformed/unreadable individual messages. They are not parser mismatches;
+                    // valid messages are still scanned, avoiding a single bad MIME item failing the run.
+                    found.mapNotNull { message -> toRaw(message) }
                 } finally {
                     runCatching { inbox.close(false) }
                 }

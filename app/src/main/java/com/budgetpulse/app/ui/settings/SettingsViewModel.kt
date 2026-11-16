@@ -2,6 +2,11 @@ package com.budgetpulse.app.ui.settings
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import android.content.Context
+import androidx.work.WorkInfo
+import androidx.work.WorkManager
+import com.budgetpulse.app.email.EmailSyncScheduler
+import com.budgetpulse.app.email.EmailSyncWorker
 import com.budgetpulse.app.data.prefs.ThemeMode
 import com.budgetpulse.app.data.prefs.UserPrefs
 import com.budgetpulse.app.data.repository.ConversionPreview
@@ -20,7 +25,12 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.withLock
 
-data class SyncUi(val running: Boolean = false, val message: String? = null, val isError: Boolean = false)
+data class SyncUi(
+    val running: Boolean = false,
+    val message: String? = null,
+    val isError: Boolean = false,
+    val showNoMonthTransactionsDialog: Boolean = false
+)
 
 /** Steps of "change the main currency": the user sees the live rate and must confirm before any data changes. */
 sealed interface ConversionUi {
@@ -40,7 +50,7 @@ data class SettingsUiState(
     val conversion: ConversionUi = ConversionUi.Idle
 )
 
-class SettingsViewModel(private val container: AppContainer) : ViewModel() {
+class SettingsViewModel(private val container: AppContainer, private val appContext: Context) : ViewModel() {
     private val sync = MutableStateFlow(SyncUi())
     private val notice = MutableStateFlow<String?>(null)
     private val conversion = MutableStateFlow<ConversionUi>(ConversionUi.Idle)
@@ -136,12 +146,68 @@ class SettingsViewModel(private val container: AppContainer) : ViewModel() {
 
     fun syncNow(overrideInitialDays: Int? = null) {
         viewModelScope.launch {
-            if (overrideInitialDays != null) {
-                container.userPreferences.setInitialScanDays(overrideInitialDays)
+            val savedAttempt = container.userPreferences.manualScanAttempt()
+            val requestedDays = overrideInitialDays ?: when {
+                savedAttempt == 7 -> 7
+                savedAttempt == 30 -> 30
+                else -> container.userPreferences.prefs.first().initialScanDays
             }
-            sync.value = SyncUi(running = true)
-            val result = container.emailImportRepository.sync()
-            sync.value = SyncUi(running = false, message = result.summary, isError = result.error != null)
+            val nextAttempt = if (overrideInitialDays != null || savedAttempt == 0) requestedDays else savedAttempt
+            container.userPreferences.setManualScanAttempt(nextAttempt)
+            container.userPreferences.setManualEmailScanPending(true)
+            sync.value = SyncUi(running = true, message = "Manual email scan queued…")
+            try {
+                EmailSyncScheduler.enqueueManualScan(appContext, requestedDays)
+            } catch (e: Exception) {
+                container.userPreferences.setManualEmailScanPending(false)
+                sync.value = SyncUi(running = false, message = e.message ?: "Could not queue email scan.", isError = true)
+            }
+        }
+    }
+
+    fun dismissNoMonthTransactionsDialog() {
+        sync.update { it.copy(showNoMonthTransactionsDialog = false) }
+    }
+
+    fun observeManualScan(context: Context) {
+        viewModelScope.launch {
+            val workManager = WorkManager.getInstance(context.applicationContext)
+            workManager.getWorkInfosForUniqueWorkFlow(EmailSyncScheduler.MANUAL_SCAN).collect { infos ->
+                val info = infos.firstOrNull() ?: run {
+                    if (container.userPreferences.isManualEmailScanPending()) {
+                        sync.value = SyncUi(running = true, message = "Manual email scan is queued…")
+                    } else {
+                        sync.value = SyncUi()
+                    }
+                    return@collect
+                }
+                when (info.state) {
+                    WorkInfo.State.ENQUEUED, WorkInfo.State.RUNNING, WorkInfo.State.BLOCKED ->
+                        sync.value = SyncUi(running = true, message = "Manual email scan is running…")
+                    WorkInfo.State.SUCCEEDED -> {
+                        val data = info.outputData
+                        val imported = data.getInt(EmailSyncWorker.KEY_IMPORTED, 0)
+                        if (imported == -1) {
+                            sync.value = SyncUi(running = true, message = data.getString(EmailSyncWorker.KEY_SUMMARY))
+                        } else {
+                            val recovered = data.getBoolean(EmailSyncWorker.KEY_RECOVERED_MONTH, false)
+                            sync.value = SyncUi(
+                                running = false,
+                                message = data.getString(EmailSyncWorker.KEY_SUMMARY),
+                                showNoMonthTransactionsDialog = recovered && imported == 0
+                            )
+                        }
+                    }
+                    WorkInfo.State.FAILED -> {
+                        sync.value = SyncUi(
+                            running = false,
+                            message = info.outputData.getString(EmailSyncWorker.KEY_SUMMARY) ?: "Email scan failed. Please try again.",
+                            isError = true
+                        )
+                    }
+                    WorkInfo.State.CANCELLED -> sync.value = SyncUi(running = false)
+                }
+            }
         }
     }
 

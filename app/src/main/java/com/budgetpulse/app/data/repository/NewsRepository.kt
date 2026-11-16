@@ -31,7 +31,7 @@ class NewsRepository(
     suspend fun refreshIfNeeded(force: Boolean = false): Result<Int> {
         val date = today()
         val weekKey = NewsPlanner.weekKey(date)
-        if (!force && dao.countForWeek(weekKey) > 0) {
+        if (!force && dao.countForWeek(weekKey) > 0 && dao.countMissingSourceUrl(weekKey) == 0) {
             AppLog.d(AppLog.NET, "news for $weekKey already cached")
             return Result.success(0)
         }
@@ -40,7 +40,20 @@ class NewsRepository(
             val items = withContext(Dispatchers.Default) { NewsFeedParser.parse(xml) }
             if (items.isEmpty()) return Result.failure(IOException("No news found"))
             val now = System.currentTimeMillis()
-            dao.insertAll(items.map { NewsEntity(it.link, it.title, it.source, it.publishedAt, it.imageUrl, weekKey, now) })
+            dao.insertAll(
+                items.map {
+                    NewsEntity(
+                        link = it.link,
+                        title = it.title,
+                        source = it.source,
+                        publishedAt = it.publishedAt,
+                        imageUrl = it.imageUrl,
+                        weekKey = weekKey,
+                        fetchedAt = now,
+                        sourceUrl = it.sourceUrl
+                    )
+                }
+            )
             dao.deleteOlderThan(weekKey)
             AppLog.i(AppLog.DB, "cached ${items.size} news items for $weekKey (topic=${NewsPlanner.topicFor(date)})")
             Result.success(items.size)

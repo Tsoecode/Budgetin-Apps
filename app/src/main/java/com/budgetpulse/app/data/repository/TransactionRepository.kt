@@ -14,6 +14,9 @@ class TransactionRepository(private val dao: TransactionDao, private val notific
 
     fun observe(id: Long): Flow<Transaction?> = dao.observeById(id).map { it?.toDomain() }
 
+    fun observeForAccount(accountId: Long): Flow<List<Transaction>> =
+        dao.observeByAccountId(accountId).map { rows -> rows.map { it.toDomain() } }
+
     suspend fun get(id: Long): Transaction? = dao.getById(id)?.toDomain()
 
     suspend fun add(tx: Transaction): Long {

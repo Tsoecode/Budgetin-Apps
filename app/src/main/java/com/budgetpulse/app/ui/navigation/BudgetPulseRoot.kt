@@ -19,6 +19,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import com.budgetpulse.app.data.prefs.UserPrefs
+import com.budgetpulse.app.ui.account.AccountDetailScreen
 import com.budgetpulse.app.ui.budgets.BudgetsScreen
 import com.budgetpulse.app.ui.common.LocalBackAction
 import com.budgetpulse.app.ui.history.HistoryScreen
@@ -113,9 +114,18 @@ fun BudgetPulseRoot(windowSize: WindowSizeClass, prefs: UserPrefs, navController
                     onOpenSettings = { navController.navigate(Settings) { launchSingleTop = true } },
                     onAddTransaction = { income -> navController.navigate(TransactionForm(startAsIncome = income)) },
                     onOpenTransaction = { id -> navController.navigate(TransactionDetail(id)) },
+                    onOpenAccount = { id -> navController.navigate(AccountDetails(id)) },
                     onOpenBudgets = { navController.navigate(Budgets) { launchSingleTop = true } },
                     onOpenTips = { navController.navigate(Tips) { launchSingleTop = true } },
                     onOpenNotifications = { navController.navigate(Notifications) { launchSingleTop = true } }
+                )
+            }
+            composable<AccountDetails> { entry ->
+                val args = entry.toRoute<AccountDetails>()
+                AccountDetailScreen(
+                    accountId = args.accountId,
+                    onBack = { navController.popBackStack() },
+                    onOpenTransaction = { id -> navController.navigate(TransactionDetail(id)) }
                 )
             }
             composable<History> {

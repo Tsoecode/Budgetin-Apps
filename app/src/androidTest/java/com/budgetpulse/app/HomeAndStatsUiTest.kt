@@ -52,12 +52,17 @@ class HomeAndStatsUiTest {
         month = BudgetCalculator.summarize(listOf(lunch, salary)), hasTransactions = true
     )
 
-    private fun showHome(state: HomeUiState = homeState, onAdd: (Boolean) -> Unit = {}, onOpen: (Long) -> Unit = {}) {
+    private fun showHome(
+        state: HomeUiState = homeState,
+        onAdd: (Boolean) -> Unit = {},
+        onOpen: (Long) -> Unit = {},
+        onAccount: (Long) -> Unit = {}
+    ) {
         rule.setContent {
             BudgetPulseTheme(ThemeMode.LIGHT) {
                 HomeContent(
                     state, wide = false, onOpenSettings = {}, onAddTransaction = onAdd, onOpenTransaction = onOpen,
-                    onOpenBudgets = {}, onOpenTips = {}, onOpenNotifications = {}, onOpenNews = {}, onAddAccount = { _, _, _ -> }, autoScrollNews = false
+                    onOpenBudgets = {}, onOpenTips = {}, onOpenNotifications = {}, onOpenNews = {}, onAddAccount = { _, _, _ -> }, autoScrollNews = false, onOpenAccount = onAccount
                 )
             }
         }
@@ -70,6 +75,14 @@ class HomeAndStatsUiTest {
         rule.onNodeWithTag("total_balance").assertIsDisplayed()
         rule.onNodeWithText("Cash wallet").assertIsDisplayed()
         rule.onNodeWithText("Key insight").assertIsDisplayed()
+    }
+
+    @Test
+    fun tappingAnAccountOpensItsDetail() {
+        var openedAccountId: Long? = null
+        showHome(onAccount = { openedAccountId = it })
+        rule.onNodeWithText("Cash wallet").performClick()
+        assertEquals(1L, openedAccountId)
     }
 
     @Test

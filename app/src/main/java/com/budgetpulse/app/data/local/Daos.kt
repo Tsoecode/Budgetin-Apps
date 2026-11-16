@@ -16,6 +16,12 @@ interface AccountDao {
     @Query("SELECT COUNT(*) FROM accounts")
     suspend fun count(): Int
 
+    @Query("SELECT * FROM accounts WHERE id = :id")
+    suspend fun getById(id: Long): AccountEntity?
+
+    @Query("UPDATE accounts SET initialBalance = initialBalance + :amount WHERE id = :id")
+    suspend fun addToInitialBalance(id: Long, amount: Double): Int
+
     @Insert
     suspend fun insert(account: AccountEntity): Long
 
@@ -36,6 +42,15 @@ interface TransactionDao {
 
     @Query("SELECT * FROM transactions WHERE id = :id")
     fun observeById(id: Long): Flow<TransactionEntity?>
+
+    @Query("SELECT * FROM transactions WHERE accountId = :accountId ORDER BY timestamp DESC, id DESC")
+    fun observeByAccountId(accountId: Long): Flow<List<TransactionEntity>>
+
+    @Query("SELECT COUNT(*) FROM transactions WHERE accountId = :accountId")
+    suspend fun countForAccount(accountId: Long): Int
+
+    @Query("UPDATE transactions SET accountId = :destinationId WHERE accountId = :sourceId")
+    suspend fun moveAccountTransactions(sourceId: Long, destinationId: Long): Int
 
     @Query("SELECT * FROM transactions WHERE id = :id")
     suspend fun getById(id: Long): TransactionEntity?
@@ -102,6 +117,10 @@ interface NewsDao {
 
     @Query("SELECT COUNT(*) FROM news WHERE weekKey = :weekKey")
     suspend fun countForWeek(weekKey: String): Int
+
+    /** Cached rows from before the source-URL column existed, so they carry no publisher logo. */
+    @Query("SELECT COUNT(*) FROM news WHERE weekKey = :weekKey AND sourceUrl = ''")
+    suspend fun countMissingSourceUrl(weekKey: String): Int
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(items: List<NewsEntity>)

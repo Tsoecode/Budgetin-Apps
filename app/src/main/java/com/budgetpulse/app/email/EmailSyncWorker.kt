@@ -25,14 +25,56 @@ import java.util.concurrent.TimeUnit
  * (WorkManager's periodic jobs cannot go below 15). Android may delay a run while the phone is idle (Doze).
  */
 class EmailSyncWorker(context: Context, params: WorkerParameters) : CoroutineWorker(context, params) {
+    companion object {
+        const val KEY_MANUAL = "manual"
+        const val KEY_RECOVERY_MONTH = "recovery_month"
+        const val KEY_SUMMARY = "summary"
+        const val KEY_IMPORTED = "imported"
+        const val KEY_RECOVERED_MONTH = "recovered_month"
+        const val KEY_REQUESTED_DAYS = "requested_days"
+    }
     override suspend fun doWork(): Result {
         val container = (applicationContext as BudgetPulseApp).container
+        if (inputData.getBoolean(KEY_MANUAL, false)) {
+            val recoveryMonth = inputData.getBoolean(KEY_RECOVERY_MONTH, false)
+            val requestedDays = inputData.getInt(KEY_REQUESTED_DAYS, 7)
+            if (!recoveryMonth) {
+                container.userPreferences.setManualScanOriginalDays(requestedDays)
+            }
+            container.userPreferences.setInitialScanDays(requestedDays)
+            val result = container.emailImportRepository.sync(allowInitialScan = true)
+            if (result.error != null || result.waitingForRates > 0) {
+                container.userPreferences.setManualEmailScanPending(false)
+                container.userPreferences.setManualScanAttempt(0)
+                return Result.failure(workDataOf(
+                    KEY_SUMMARY to (result.error ?: result.summary),
+                    KEY_IMPORTED to -1,
+                    KEY_RECOVERED_MONTH to false
+                ))
+            }
+            val attemptedDays = container.userPreferences.manualScanAttempt()
+            if (result.imported == 0 && !recoveryMonth && attemptedDays == 7) {
+                // Remember that the next user-triggered manual scan should widen to 30 days.
+                container.userPreferences.setManualScanAttempt(30)
+                return Result.success(workDataOf(
+                    KEY_SUMMARY to "No transactions found in 7 days. Tap Sync now to scan 30 days.",
+                    KEY_IMPORTED to 0,
+                    KEY_RECOVERED_MONTH to false
+                ))
+            }
+            container.userPreferences.setManualEmailScanPending(false)
+            container.userPreferences.setManualScanAttempt(0)
+            return Result.success(workDataOf(
+                KEY_SUMMARY to result.summary,
+                KEY_IMPORTED to result.imported,
+                KEY_RECOVERED_MONTH to inputData.getBoolean(KEY_RECOVERY_MONTH, false)
+            ))
+        }
         val slot = inputData.getString(EmailSyncScheduler.KEY_SLOT) ?: EmailSyncScheduler.SLOT_A
         try {
             val result = container.emailImportRepository.sync(allowInitialScan = false)
             AppLog.i(AppLog.EMAIL, "background sync: ${result.summary}")
         } finally {
-            // Always queue the next check, even after an error, or the chain would silently stop.
             withContext(NonCancellable) { EmailSyncScheduler.scheduleNext(applicationContext, container.userPreferences, slot) }
         }
         return Result.success()
@@ -43,7 +85,20 @@ object EmailSyncScheduler {
     const val SLOT_A = "email-import-sync-a"
     const val SLOT_B = "email-import-sync-b"
     const val KEY_SLOT = "slot"
+    const val MANUAL_SCAN = "email-import-manual-scan"
     private const val LEGACY_PERIODIC = "email-import-sync"
+
+    fun enqueueManualScan(context: Context, requestedDays: Int) {
+        val request = OneTimeWorkRequestBuilder<EmailSyncWorker>()
+            .setInputData(workDataOf(
+                EmailSyncWorker.KEY_MANUAL to true,
+                EmailSyncWorker.KEY_RECOVERY_MONTH to false,
+                EmailSyncWorker.KEY_REQUESTED_DAYS to requestedDays
+            ))
+            .setConstraints(Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build())
+            .build()
+        WorkManager.getInstance(context).enqueueUniqueWork(MANUAL_SCAN, ExistingWorkPolicy.REPLACE, request)
+    }
 
     private fun request(slot: String, delayMinutes: Long): OneTimeWorkRequest =
         OneTimeWorkRequestBuilder<EmailSyncWorker>()

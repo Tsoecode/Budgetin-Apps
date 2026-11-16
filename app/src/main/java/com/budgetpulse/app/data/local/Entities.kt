@@ -24,7 +24,7 @@ data class AccountEntity(
         entity = AccountEntity::class,
         parentColumns = ["id"],
         childColumns = ["accountId"],
-        onDelete = ForeignKey.CASCADE
+        onDelete = ForeignKey.RESTRICT
     )],
     indices = [Index("accountId"), Index("timestamp"), Index(value = ["externalId"], unique = true)]
 )
@@ -63,7 +63,8 @@ data class NewsEntity(
     val publishedAt: Long,
     val imageUrl: String,
     val weekKey: String,
-    val fetchedAt: Long
+    val fetchedAt: Long,
+    val sourceUrl: String = ""
 )
 
 @Entity(tableName = "rates_cache")

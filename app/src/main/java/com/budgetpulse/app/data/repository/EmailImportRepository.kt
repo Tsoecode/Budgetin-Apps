@@ -73,13 +73,14 @@ class EmailImportRepository(
 
         val now = clock()
         val initialRange = InitialSyncRange.fromDays(p.initialScanDays)
-        val since = if (p.lastEmailSyncAt > 0) p.lastEmailSyncAt - TWO_DAYS_MS else now - initialRange.durationMs
-        val maxMessages = if (p.lastEmailSyncAt > 0) MAX_MESSAGES else if (initialRange == InitialSyncRange.ONE_MONTH) MAX_MESSAGES_MONTH else MAX_MESSAGES
+        // Re-scan the configured history window on every run. This deliberately overlaps prior
+        // successful syncs so a later run can recover older messages missed during a transient issue.
+        val since = now - initialRange.durationMs
         val keywords = p.senderKeywords.split(',').map { it.trim() }.filter { it.isNotEmpty() }
 
         return try {
             AppLog.i(AppLog.EMAIL, "sync started host=${p.imapHost} since=$since initialRange=${initialRange.label}")
-            val mails = fetcher.fetchRecent(ImapConfig(p.imapHost, p.imapUser, password), since, maxMessages)
+            val mails = fetcher.fetchRecent(ImapConfig(p.imapHost, p.imapUser, password), since)
             var matched = 0
             var imported = 0
             var waiting = 0
@@ -113,14 +114,15 @@ class EmailImportRepository(
             }
             val result = SyncResult(mails.size, matched, imported, waiting, unsupported)
             // While mails wait for rates keep the old "last check" time so the next sync scans them again.
-            prefs.setLastEmailSync(if (waiting > 0) p.lastEmailSyncAt else now, result.summary)
+            // Only mark a complete fetch/process pass. Pending rates remain explicitly retryable.
+            if (waiting == 0) prefs.setLastEmailSync(now, result.summary)
             AppLog.i(AppLog.EMAIL, "sync finished: ${result.summary}")
             result
         } catch (e: CancellationException) {
             throw e
         } catch (e: EmailAuthException) {
             AppLog.w(AppLog.EMAIL, "auth failed")
-            SyncResult(error = e.message ?: "Login failed.").also { prefs.setLastEmailSync(now, it.summary) }
+            SyncResult(error = e.message ?: "Login failed.", retryable = true)
         } catch (e: IOException) {
             AppLog.w(AppLog.EMAIL, "network error: ${e.message}")
             SyncResult(error = e.message ?: "Network error.", retryable = true)
@@ -131,8 +133,5 @@ class EmailImportRepository(
     }
 
     companion object {
-        private const val MAX_MESSAGES = 100
-        private const val MAX_MESSAGES_MONTH = 300
-        private const val TWO_DAYS_MS = 2L * 24 * 60 * 60 * 1000
     }
 }

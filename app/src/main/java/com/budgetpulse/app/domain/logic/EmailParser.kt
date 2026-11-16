@@ -62,11 +62,13 @@ object EmailParser {
 
     private val CATEGORY_RULES: List<Pair<Category, List<String>>> = listOf(
         Category.FOOD to listOf("grabfood", "gofood", "shopeefood", "kfc", "mcd", "mcdonald", "starbucks", "restaurant",
-            "resto", "cafe", "coffee", "kopi", "food", "pizza", "burger", "bakery", "warung", "makan", "ayam", "nasi", "rice", "minuman", "juice", "ice"),
+            "resto", "cafe", "coffee", "kopi", "food", "pizza", "burger", "bakery", "warung", "makan", "ayam", "nasi", "rice", "minuman", "juice", "ice",
+            "kedai"),
         Category.TRANSPORT to listOf("grab", "gojek", "uber", "bluebird", "transjakarta", "mrt", "krl", "kereta",
             "parking", "parkir", "pertamina", "shell", "bensin", "toll", "e-toll", "petronas", "touch n go"),
         Category.SHOPPING to listOf("indomaret", "alfamart", "tokopedia", "shopee", "lazada", "amazon", "mall",
-            "supermarket", "hypermart", "superindo", "giant", "lotus", "aeon", "mydin", "7-eleven", "familymart"),
+            "supermarket", "hypermart", "superindo", "giant", "lotus", "aeon", "mydin", "7-eleven", "familymart",
+            "CK", "kk mart", "toko"),
         Category.BILLS to listOf("pln", "listrik", "pdam", "telkom", "indihome", "internet", "pulsa", "wifi", "bpjs",
             "insurance", "asuransi", "tnb", "unifi", "astro", "utility", "tagihan listrik", "water bill"),
         Category.ENTERTAINMENT to listOf("netflix", "spotify", "steam", "cinema", "bioskop", "xxi", "cgv", "youtube", "disney"),

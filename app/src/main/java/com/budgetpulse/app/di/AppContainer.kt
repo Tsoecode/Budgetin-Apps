@@ -74,7 +74,7 @@ class DefaultAppContainer(context: Context) : AppContainer {
     private val emailFetcher: EmailFetcher by lazy { ImapEmailFetcher() }
 
     override val userPreferences by lazy { UserPreferencesRepository(appContext) }
-    override val accountRepository by lazy { AccountRepository(database.accountDao()) }
+    override val accountRepository by lazy { AccountRepository(database) }
     override val notificationRepository by lazy { NotificationRepository(database.notificationDao()) }
     override val transactionRepository by lazy { TransactionRepository(database.transactionDao(), notificationRepository) }
     override val budgetRepository by lazy { BudgetRepository(database.budgetDao(), database.goalDao()) }

@@ -8,6 +8,6 @@ class EmailAuthException(message: String) : Exception(message)
 
 /** Abstraction over the mail server so the import logic can be tested with a fake. */
 interface EmailFetcher {
-    /** Newest messages received at or after [sinceMillis] (max [max]). Throws [EmailAuthException] or IOException. */
-    suspend fun fetchRecent(config: ImapConfig, sinceMillis: Long, max: Int): List<RawEmail>
+    /** All messages received at or after [sinceMillis]. Implementations must not silently truncate results. */
+    suspend fun fetchRecent(config: ImapConfig, sinceMillis: Long): List<RawEmail>
 }

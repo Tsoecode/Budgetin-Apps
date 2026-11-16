@@ -77,7 +77,26 @@ class CurrencyAndNewsTest {
         assertEquals("https://news.google.com/rss/articles/AAA", items[0].link)
         assertEquals(1793689200000L, items[0].publishedAt)
         assertTrue(items[0].imageUrl.startsWith("https://"))
+        assertEquals("https://www.thejakartapost.com", items[0].sourceUrl)
         assertEquals(0L, items[2].publishedAt) // missing pubDate is tolerated
+    }
+
+    @Test
+    fun logoFor_usesBareHostFromPublisherUrl() {
+        assertEquals(
+            "https://www.thejakartapost.com/resources/images/logo.svg",
+            NewsFeedParser.logoFor("https://www.thejakartapost.com")
+        )
+        assertEquals(
+            "https://s.yimg.com/rz/p/yahoo_finance_en-US_h_p_finance_2.png",
+            NewsFeedParser.logoFor("https://finance.yahoo.com")
+        )
+    }
+
+    @Test
+    fun logoFor_returnsNullWhenPublisherIsUnknown() {
+        assertNull(NewsFeedParser.logoFor(""))
+        assertNull(NewsFeedParser.logoFor("not a url"))
     }
 
     @Test

@@ -81,6 +81,7 @@ fun HomeScreen(
     onOpenSettings: () -> Unit,
     onAddTransaction: (startAsIncome: Boolean) -> Unit,
     onOpenTransaction: (Long) -> Unit,
+    onOpenAccount: (Long) -> Unit,
     onOpenBudgets: () -> Unit,
     onOpenTips: () -> Unit,
     onOpenNotifications: () -> Unit
@@ -95,6 +96,7 @@ fun HomeScreen(
         onOpenSettings = onOpenSettings,
         onAddTransaction = onAddTransaction,
         onOpenTransaction = onOpenTransaction,
+        onOpenAccount = onOpenAccount,
         onOpenBudgets = onOpenBudgets,
         onOpenTips = onOpenTips,
         onOpenNotifications = onOpenNotifications,
@@ -115,7 +117,8 @@ fun HomeContent(
     onOpenNotifications: () -> Unit,
     onOpenNews: (NewsItem) -> Unit,
     onAddAccount: (String, AccountType, Double) -> Unit,
-    autoScrollNews: Boolean = true
+    autoScrollNews: Boolean = true,
+    onOpenAccount: (Long) -> Unit = {}
 ) {
     var showAddAccount by remember { mutableStateOf(false) }
     val greeting = if (state.userName.isBlank()) "Welcome back" else "Hi, " + state.userName.substringBefore(' ')
@@ -123,7 +126,14 @@ fun HomeContent(
 
     val left: LazyListScope.() -> Unit = {
         item { BalanceHeader(state, greeting) }
-        item { AccountsRow(state.accounts, state.currency, onAdd = { showAddAccount = true }) }
+        item {
+            AccountsRow(
+                state.accounts,
+                state.currency,
+                onAdd = { showAddAccount = true },
+                onOpenAccount = onOpenAccount
+            )
+        }
         item {
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 PillButton("Spend", { onAddTransaction(false) }, Modifier.weight(1f).testTag("btn_spend"), icon = R.drawable.ic_remove)
@@ -196,10 +206,15 @@ private fun BalanceHeader(state: HomeUiState, greeting: String) {
 }
 
 @Composable
-private fun AccountsRow(accounts: List<AccountWithBalance>, currency: String, onAdd: () -> Unit) {
+private fun AccountsRow(
+    accounts: List<AccountWithBalance>,
+    currency: String,
+    onAdd: () -> Unit,
+    onOpenAccount: (Long) -> Unit
+) {
     LazyRow(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
         items(accounts, key = { it.account.id }) { a ->
-            AppCard(Modifier.width(176.dp)) {
+            AppCard(Modifier.width(176.dp), onClick = { onOpenAccount(a.account.id) }) {
                 Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Box(

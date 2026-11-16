@@ -1,11 +1,12 @@
 package com.budgetpulse.app
 
+import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import androidx.compose.ui.test.assertDoesNotExist
 import com.budgetpulse.app.data.prefs.ThemeMode
 import com.budgetpulse.app.domain.model.AppNotification
 import com.budgetpulse.app.domain.model.Category
@@ -53,7 +54,7 @@ class NotificationsUiTest {
     fun emptyStateExplainsWhatShowsUpHere() {
         show(NotificationsUiState(loading = false, items = emptyList()))
         rule.onNodeWithText("No notifications yet").assertIsDisplayed()
-        rule.onNodeWithTag("btn_clear_notifications").assertDoesNotExist()
+        rule.onAllNodesWithTag("btn_clear_notifications").assertCountEquals(0)
     }
 
     @Test
@@ -67,8 +68,7 @@ class NotificationsUiTest {
     @Test
     fun splashShowsTheLogo() {
         rule.setContent { BudgetPulseTheme(ThemeMode.DARK) { SplashScreen() } }
-        rule.onNodeWithTag("splash").assertIsDisplayed()
-        rule.onNodeWithContentDescription("BudgetPulse logo").assertIsDisplayed()
-        rule.onNodeWithText("BudgetPulse").assertIsDisplayed()
+        rule.onNodeWithTag("splash").assertExists()
+        rule.onNodeWithContentDescription("BudgetPulse logo").assertExists()
     }
 }

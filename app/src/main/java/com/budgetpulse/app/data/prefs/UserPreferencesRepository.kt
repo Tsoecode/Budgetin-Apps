@@ -62,6 +62,9 @@ class UserPreferencesRepository(private val context: Context) {
         val MAIL_INITIAL_SCAN_DAYS = intPreferencesKey("mail_initial_scan_days")
         val MAIL_LAST_SYNC = longPreferencesKey("mail_last_sync")
         val MAIL_LAST_MSG = stringPreferencesKey("mail_last_msg")
+        val MAIL_MANUAL_SCAN_PENDING = booleanPreferencesKey("mail_manual_scan_pending")
+        val MAIL_MANUAL_SCAN_ATTEMPT = intPreferencesKey("mail_manual_scan_attempt")
+        val MAIL_MANUAL_SCAN_ORIGINAL_DAYS = intPreferencesKey("mail_manual_scan_original_days")
     }
 
     val prefs: Flow<UserPrefs> = context.dataStore.data.map { it.toUserPrefs() }
@@ -181,4 +184,26 @@ class UserPreferencesRepository(private val context: Context) {
             it[Keys.MAIL_LAST_MSG] = message
         }
     }
+
+    suspend fun setManualEmailScanPending(pending: Boolean) {
+        context.dataStore.edit { it[Keys.MAIL_MANUAL_SCAN_PENDING] = pending }
+    }
+
+    suspend fun isManualEmailScanPending(): Boolean =
+        context.dataStore.data.first()[Keys.MAIL_MANUAL_SCAN_PENDING] ?: false
+
+    suspend fun setManualScanAttempt(days: Int) {
+        context.dataStore.edit { it[Keys.MAIL_MANUAL_SCAN_ATTEMPT] = days }
+    }
+
+    suspend fun manualScanAttempt(): Int =
+        context.dataStore.data.first()[Keys.MAIL_MANUAL_SCAN_ATTEMPT] ?: 0
+
+    suspend fun setManualScanOriginalDays(days: Int) {
+        context.dataStore.edit { it[Keys.MAIL_MANUAL_SCAN_ORIGINAL_DAYS] = days }
+    }
+
+    suspend fun manualScanOriginalDays(): Int =
+        context.dataStore.data.first()[Keys.MAIL_MANUAL_SCAN_ORIGINAL_DAYS] ?: InitialSyncRange.DEFAULT.days
+
 }
